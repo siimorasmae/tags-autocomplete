@@ -20,7 +20,6 @@
 <script>
 import VueTagsInput from '@sipec/vue3-tags-input';
 import { render } from 'micromustache';
-import axios from 'axios';
 import pick from 'lodash.pick';
 import get from 'lodash.get';
 
@@ -50,28 +49,23 @@ export default {
       isLoading: false,
     };
   },
-  mounted() {
-    console.log('1', this.value);
-  },
   emits: ['input'],
   watch: {
     'tag': 'initItems',
     value: {
       handler (newVal) {
-        if (newVal) console.log('w', newVal);
+        if (newVal) this.tags = JSON.parse(JSON.stringify(newVal))
       },
-      immediate: true
+      immediate: true,
     }
   },
   methods: {
     update(newTags) {
-      console.log('update')
       this.autocompleteItems = [];
       this.tags = newTags;
       this.$emit('input', newTags);
     },
     initItems() {
-      console.log('2', this.value);
       if (this.tag.length < 3) return;
       const url = render(this.url, { value: this.tag });
 
@@ -80,8 +74,8 @@ export default {
       this.debounce = setTimeout(async () => {
         try {
           this.isLoading = true;
-          const response = await axios.get(url);
-          const responseArray = get(response.data, this.resultsPath);
+          const response = await fetch(url).then(res => res.json());
+          const responseArray = get(response, this.resultsPath);
           const valuesArray = this.valuesToMap.split(',');
           const valuesTrim = valuesArray.map(s => s.trim());
 

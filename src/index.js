@@ -37,7 +37,7 @@ export default {
     },
     {
       field: 'valuesToMap',
-      name: 'Values to map (CSV)*',
+      name: 'Values to save (CSV)*',
       type: 'string',
       meta: {
         width: 'half',
@@ -46,7 +46,7 @@ export default {
           placeholder: 'name, uuid',
           font: 'monospace',
         },
-        note: 'Must include "Value to display"',
+        // note: 'Must include "Value to display"',
       },
       schema: {
         default_value: 'name',
