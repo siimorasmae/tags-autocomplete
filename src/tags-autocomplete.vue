@@ -1,5 +1,5 @@
 <template>
-  <v-notice type="warning" v-if="!url || !resultsPath || !valuesToMap">
+  <v-notice v-if="!url || !resultsPath || !valuesToMap" type="warning">
     One or more required options are missing
   </v-notice>
 
@@ -11,6 +11,7 @@
       :add-only-from-autocomplete="true"
       placeholder="Add tags..."
       @tags-changed="update"
+      :add-from-paste="false"
     />
     <v-skeleton-loader class="ti-loader" v-if="isLoading" />
   </div>
@@ -19,14 +20,16 @@
 <script>
 import VueTagsInput from '@sipec/vue3-tags-input';
 import { render } from 'micromustache';
+import axios from 'axios';
 import pick from 'lodash.pick';
 import get from 'lodash.get';
 
-let axios;
-
 export default {
   props: {
-    value: String,
+    value: {
+			type: String,
+			default: null,
+		},
     url: String,
     resultsPath: String,
     valuesToMap: {
@@ -47,44 +50,47 @@ export default {
       isLoading: false,
     };
   },
-  inject: ['system'],
-  emits: ['input'],
-  async mounted() {
-    axios = this.system.axios;
+  mounted() {
+    console.log('1', this.value);
   },
+  emits: ['input'],
   watch: {
     'tag': 'initItems',
+    value: {
+      handler (newVal) {
+        if (newVal) console.log('w', newVal);
+      },
+      immediate: true
+    }
   },
   methods: {
     update(newTags) {
+      console.log('update')
       this.autocompleteItems = [];
       this.tags = newTags;
-      console.log(newTags);
       this.$emit('input', newTags);
     },
     initItems() {
-      if (this.tag.length < 2) return;
+      console.log('2', this.value);
+      if (this.tag.length < 3) return;
       const url = render(this.url, { value: this.tag });
 
-      this.isLoading = true;
       clearTimeout(this.debounce);
 
       this.debounce = setTimeout(async () => {
         try {
+          this.isLoading = true;
           const response = await axios.get(url);
           const responseArray = get(response.data, this.resultsPath);
           const valuesArray = this.valuesToMap.split(',');
           const valuesTrim = valuesArray.map(s => s.trim());
-
-          console.log(responseArray);
-          console.log(responseArray.map(tag => pick(tag, valuesTrim)));
 
           this.autocompleteItems = responseArray.map(tag => {
             const values= pick(tag, valuesTrim);
 
             return {
               ...values,
-              text: '', // VueTagsInput needs this
+              text: tag[this.displayValue],
             }
           });
         } catch (error) {

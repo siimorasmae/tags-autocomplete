@@ -6,7 +6,7 @@ export default {
   description: 'Over the internet, imagine that!',
   icon: 'local_offer',
   component: TagsAutocomplete,
-  types: ['json', 'csv'],
+  types: ['json', 'csv', 'string'],
   recommendedDisplays: ['labels'],
   options: [
     {
