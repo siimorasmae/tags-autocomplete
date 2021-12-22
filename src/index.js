@@ -46,7 +46,6 @@ export default {
           placeholder: 'name, uuid',
           font: 'monospace',
         },
-        // note: 'Must include "Value to display"',
       },
       schema: {
         default_value: 'name',
